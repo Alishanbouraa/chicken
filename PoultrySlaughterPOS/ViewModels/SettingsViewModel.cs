@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Services.Interfaces;
+using System.Reflection;
 
 namespace PoultrySlaughterPOS.ViewModels
 {
@@ -44,6 +45,15 @@ namespace PoultrySlaughterPOS.ViewModels
 
         [ObservableProperty]
         private DateTime _lastBackupDate;
+
+        [ObservableProperty]
+        private string _applicationVersion = GetApplicationVersion();
+
+        [ObservableProperty]
+        private string _buildDate = DateTime.Now.ToString("yyyy/MM/dd");
+
+        [ObservableProperty]
+        private string _databaseType = "SQL Server LocalDB";
 
         #endregion
 
@@ -140,6 +150,20 @@ namespace PoultrySlaughterPOS.ViewModels
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading settings");
+            }
+        }
+
+        private static string GetApplicationVersion()
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var version = assembly.GetName().Version;
+                return version?.ToString() ?? "1.0.0";
+            }
+            catch
+            {
+                return "1.0.0";
             }
         }
 

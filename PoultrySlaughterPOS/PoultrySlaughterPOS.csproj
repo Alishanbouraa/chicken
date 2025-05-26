@@ -5,7 +5,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Resources\Images\app-icon.ico</ApplicationIcon>
+  
     <AssemblyTitle>Poultry Slaughter POS System</AssemblyTitle>
     <AssemblyDescription>Enterprise-grade offline Point of Sale system for poultry slaughterhouses</AssemblyDescription>
     <Copyright>© 2024 Poultry Solutions</Copyright>

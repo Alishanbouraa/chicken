@@ -410,7 +410,7 @@
                                 <TextBlock Text="تاريخ البناء"
                                          FontSize="12"
                                          Opacity="0.7"/>
-                                <TextBlock Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='{}{0:yyyy/MM/dd}'}"
+                                <TextBlock Text="{Binding BuildDate}"
                                          FontSize="14"
                                          FontWeight="Medium"/>
                             </StackPanel>
