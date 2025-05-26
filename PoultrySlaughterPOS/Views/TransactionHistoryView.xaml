@@ -1,0 +1,352 @@
+﻿<UserControl x:Class="PoultrySlaughterPOS.Views.TransactionHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:PoultrySlaughterPOS.Utils.Converters"
+             FlowDirection="RightToLeft"
+             Background="{DynamicResource MaterialDesignBackground}">
+
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:DecimalToStringConverter x:Key="DecimalConverter"/>
+
+        <!-- Section Card Style -->
+        <Style x:Key="SectionCard" TargetType="materialDesign:Card">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <materialDesign:Card Grid.Row="0" Style="{StaticResource SectionCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="تاريخ المعاملات والتقارير المالية"
+                             FontSize="24"
+                             FontWeight="Medium"
+                             Margin="0,0,0,8"/>
+                    <TextBlock Text="{Binding StatusMessage}"
+                             FontSize="14"
+                             Opacity="0.7"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding RefreshDataCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Content="تحديث البيانات"
+                            Margin="8,0">
+                        <Button.CommandParameter>
+                            <materialDesign:PackIcon Kind="Refresh"/>
+                        </Button.CommandParameter>
+                    </Button>
+
+                    <Button Command="{Binding ExportTransactionsCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="تصدير البيانات"
+                            Margin="8,0">
+                        <Button.CommandParameter>
+                            <materialDesign:PackIcon Kind="Export"/>
+                        </Button.CommandParameter>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- Filters Section -->
+        <materialDesign:Card Grid.Row="1" Style="{StaticResource SectionCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Date Range -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,16,0">
+                    <DatePicker SelectedDate="{Binding StartDate}"
+                              materialDesign:HintAssist.Hint="من تاريخ"
+                              Style="{StaticResource MaterialDesignFilledDatePicker}"
+                              Width="140"
+                              Margin="0,0,8,0"/>
+
+                    <DatePicker SelectedDate="{Binding EndDate}"
+                              materialDesign:HintAssist.Hint="إلى تاريخ"
+                              Style="{StaticResource MaterialDesignFilledDatePicker}"
+                              Width="140"/>
+                </StackPanel>
+
+                <!-- Customer Filter -->
+                <ComboBox Grid.Column="1"
+                        ItemsSource="{Binding Customers}"
+                        SelectedItem="{Binding SelectedCustomer}"
+                        DisplayMemberPath="CustomerName"
+                        materialDesign:HintAssist.Hint="اختر الزبون"
+                        Style="{StaticResource MaterialDesignFilledComboBox}"
+                        Width="180"
+                        Margin="16,0"/>
+
+                <!-- Search Box -->
+                <TextBox Grid.Column="2"
+                       Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                       materialDesign:HintAssist.Hint="البحث في المعاملات..."
+                       Style="{StaticResource MaterialDesignFilledTextBox}"
+                       Width="200"
+                       Margin="16,0">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding LoadTransactionsCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+
+                <!-- Action Buttons -->
+                <StackPanel Grid.Column="5" Orientation="Horizontal">
+                    <Button Command="{Binding LoadTransactionsCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Content="تطبيق التصفية"
+                            Margin="8,0"/>
+
+                    <Button Command="{Binding ClearFiltersCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="مسح التصفية"
+                            Margin="8,0"/>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Transactions List -->
+            <materialDesign:Card Grid.Column="0" Style="{StaticResource SectionCard}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                             Text="سجل المعاملات"
+                             FontSize="18"
+                             FontWeight="Medium"
+                             Margin="0,0,0,16"/>
+
+                    <DataGrid Grid.Row="1"
+                            ItemsSource="{Binding Transactions}"
+                            SelectedItem="{Binding SelectedTransaction}"
+                            Style="{StaticResource MaterialDesignDataGrid}"
+                            AutoGenerateColumns="False"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            IsReadOnly="True"
+                            GridLinesVisibility="Horizontal"
+                            HeadersVisibility="Column">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="رقم الفاتورة"
+                                              Binding="{Binding InvoiceNumber}"
+                                              Width="120"/>
+
+                            <DataGridTextColumn Header="التاريخ"
+                                              Binding="{Binding InvoiceDate, StringFormat='{}{0:yyyy/MM/dd HH:mm}'}"
+                                              Width="140"/>
+
+                            <DataGridTextColumn Header="اسم الزبون"
+                                              Binding="{Binding Customer.CustomerName}"
+                                              Width="150"/>
+
+                            <DataGridTextColumn Header="الشاحنة"
+                                              Binding="{Binding Truck.TruckNumber}"
+                                              Width="80"/>
+
+                            <DataGridTextColumn Header="الوزن الصافي"
+                                              Binding="{Binding NetWeight, StringFormat='{}{0:F2} كجم'}"
+                                              Width="100"/>
+
+                            <DataGridTextColumn Header="سعر الكيلو"
+                                              Binding="{Binding UnitPrice, StringFormat='{}{0:F2} ريال'}"
+                                              Width="100"/>
+
+                            <DataGridTextColumn Header="المبلغ النهائي"
+                                              Binding="{Binding FinalAmount, StringFormat='{}{0:F2} ريال'}"
+                                              Width="120"/>
+
+                            <DataGridTemplateColumn Header="الحالة" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <materialDesign:Chip Content="{Binding IsPaid, Converter={StaticResource PaymentStatusConverter}}"
+                                                           Background="{Binding IsPaid, Converter={StaticResource PaymentStatusColorConverter}}"
+                                                           Foreground="White"
+                                                           FontSize="10"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="الإجراءات" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Command="{Binding DataContext.ViewTransactionDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  Style="{StaticResource MaterialDesignIconButton}"
+                                                  ToolTip="التفاصيل"
+                                                  Width="32" Height="32">
+                                                <materialDesign:PackIcon Kind="Eye" Width="16" Height="16"/>
+                                            </Button>
+
+                                            <Button Command="{Binding DataContext.PrintInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"
+                                                  Style="{StaticResource MaterialDesignIconButton}"
+                                                  ToolTip="طباعة"
+                                                  Width="32" Height="32">
+                                                <materialDesign:PackIcon Kind="Printer" Width="16" Height="16"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </materialDesign:Card>
+
+            <!-- Summary and Analytics -->
+            <StackPanel Grid.Column="1">
+                <!-- Period Summary -->
+                <materialDesign:Card Style="{StaticResource SectionCard}">
+                    <StackPanel>
+                        <TextBlock Text="ملخص الفترة"
+                                 FontSize="16"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Grid Margin="0,8">
+                            <TextBlock Text="عدد المعاملات:" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{Binding TotalTransactionsCount}" 
+                                     HorizontalAlignment="Left"
+                                     FontWeight="Medium"/>
+                        </Grid>
+
+                        <Grid Margin="0,8">
+                            <TextBlock Text="إجمالي المبيعات:" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{Binding TotalSalesAmount, StringFormat='{}{0:F2} ريال'}" 
+                                     HorizontalAlignment="Left"
+                                     FontWeight="Medium"
+                                     Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        </Grid>
+
+                        <Grid Margin="0,8">
+                            <TextBlock Text="متوسط المعاملة:" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{Binding AverageTransactionValue, StringFormat='{}{0:F2} ريال'}" 
+                                     HorizontalAlignment="Left"/>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Period Report Details -->
+                <materialDesign:Card Style="{StaticResource SectionCard}"
+                                   Visibility="{Binding PeriodReport, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="تفاصيل التقرير"
+                                 FontSize="16"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <!-- Top Customers -->
+                        <TextBlock Text="أكبر الزبائن"
+                                 FontSize="14"
+                                 FontWeight="Medium"
+                                 Margin="0,8,0,4"/>
+
+                        <ItemsControl ItemsSource="{Binding PeriodReport.CustomerSales}"
+                                    MaxHeight="150">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <materialDesign:Card Background="{DynamicResource MaterialDesignCardBackground}"
+                                                       Padding="8"
+                                                       Margin="0,2">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Value.CustomerName}"
+                                                         FontSize="12"
+                                                         FontWeight="Medium"/>
+                                                <TextBlock Text="{Binding Value.InvoicesCount, StringFormat='{}{0} فاتورة'}"
+                                                         FontSize="10"
+                                                         Opacity="0.7"/>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="1"
+                                                     Text="{Binding Value.TotalAmount, StringFormat='{}{0:F0} ريال'}"
+                                                     FontSize="12"
+                                                     FontWeight="Medium"
+                                                     VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </materialDesign:Card>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Generate Report Button -->
+                        <Button Command="{Binding GeneratePeriodReportCommand}"
+                              Content="إنشاء تقرير مفصل"
+                              Style="{StaticResource MaterialDesignOutlinedButton}"
+                              Margin="0,16"
+                              HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Quick Actions -->
+                <materialDesign:Card Style="{StaticResource SectionCard}">
+                    <StackPanel>
+                        <TextBlock Text="إجراءات سريعة"
+                                 FontSize="16"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Button Content="تقرير اليوم"
+                              Style="{StaticResource MaterialDesignOutlinedButton}"
+                              Margin="0,4"
+                              HorizontalAlignment="Stretch"/>
+
+                        <Button Content="تقرير الأسبوع"
+                              Style="{StaticResource MaterialDesignOutlinedButton}"
+                              Margin="0,4"
+                              HorizontalAlignment="Stretch"/>
+
+                        <Button Content="تقرير الشهر"
+                              Style="{StaticResource MaterialDesignOutlinedButton}"
+                              Margin="0,4"
+                              HorizontalAlignment="Stretch"/>
+
+                        <Button Content="تصدير لـ Excel"
+                              Style="{StaticResource MaterialDesignRaisedButton}"
+                              Margin="0,8,0,4"
+                              HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

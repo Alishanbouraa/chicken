@@ -1,0 +1,484 @@
+﻿<UserControl x:Class="PoultrySlaughterPOS.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:PoultrySlaughterPOS.Utils.Converters"
+             FlowDirection="RightToLeft"
+             Background="{DynamicResource MaterialDesignBackground}">
+
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:DecimalToStringConverter x:Key="DecimalConverter"/>
+
+        <!-- Report Card Style -->
+        <Style x:Key="ReportCard" TargetType="materialDesign:Card">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp2"/>
+        </Style>
+
+        <!-- Metric Card Style -->
+        <Style x:Key="MetricCard" TargetType="materialDesign:Card">
+            <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp1"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <materialDesign:Card Grid.Row="0" Style="{StaticResource ReportCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="التقارير والإحصائيات التنفيذية"
+                             FontSize="24"
+                             FontWeight="Medium"
+                             Margin="0,0,0,8"/>
+                    <TextBlock Text="{Binding StatusMessage}"
+                             FontSize="14"
+                             Opacity="0.7"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding RefreshAllReportsCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Content="تحديث جميع التقارير"
+                            Margin="8,0">
+                        <Button.CommandParameter>
+                            <materialDesign:PackIcon Kind="Refresh"/>
+                        </Button.CommandParameter>
+                    </Button>
+
+                    <Button Command="{Binding ExportReportCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="تصدير التقرير"
+                            Margin="8,0">
+                        <Button.CommandParameter>
+                            <materialDesign:PackIcon Kind="Export"/>
+                        </Button.CommandParameter>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- Report Type Selection -->
+        <materialDesign:Card Grid.Row="1" Style="{StaticResource ReportCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Report Type -->
+                <ComboBox Grid.Column="0"
+                        SelectedValue="{Binding SelectedReportType}"
+                        materialDesign:HintAssist.Hint="نوع التقرير"
+                        Style="{StaticResource MaterialDesignFilledComboBox}"
+                        Width="200"
+                        Margin="0,0,16,0">
+                    <ComboBoxItem Content="الملخص اليومي" Tag="DailySummary"/>
+                    <ComboBoxItem Content="تقرير المبيعات" Tag="Sales"/>
+                    <ComboBoxItem Content="تقرير الديون" Tag="Debtors"/>
+                    <ComboBoxItem Content="مقارنة الأوزان" Tag="WeightComparison"/>
+                </ComboBox>
+
+                <!-- Date Selection -->
+                <DatePicker Grid.Column="1"
+                          SelectedDate="{Binding ReportDate}"
+                          materialDesign:HintAssist.Hint="تاريخ التقرير"
+                          Style="{StaticResource MaterialDesignFilledDatePicker}"
+                          Width="150"
+                          Margin="0,0,16,0"/>
+
+                <!-- Date Range for Period Reports -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,16,0"
+                          Visibility="{Binding ShowDateRange, Converter={StaticResource BoolToVisConverter}}">
+                    <DatePicker SelectedDate="{Binding ReportStartDate}"
+                              materialDesign:HintAssist.Hint="من تاريخ"
+                              Style="{StaticResource MaterialDesignFilledDatePicker}"
+                              Width="130"
+                              Margin="0,0,8,0"/>
+
+                    <DatePicker SelectedDate="{Binding ReportEndDate}"
+                              materialDesign:HintAssist.Hint="إلى تاريخ"
+                              Style="{StaticResource MaterialDesignFilledDatePicker}"
+                              Width="130"/>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- Reports Content -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Daily Summary Report -->
+                <materialDesign:Card Style="{StaticResource ReportCard}"
+                                   Visibility="{Binding DailySummaryReport, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="تقرير الملخص اليومي"
+                                 FontSize="20"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <!-- Summary Metrics -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <materialDesign:Card Grid.Column="0" Style="{StaticResource MetricCard}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Truck"
+                                                           Width="32" Height="32"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <TextBlock Text="{Binding DailySummaryReport.TruckReports.Count}"
+                                             FontSize="24"
+                                             FontWeight="Bold"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,8,0,0"/>
+                                    <TextBlock Text="شاحنات نشطة"
+                                             FontSize="12"
+                                             HorizontalAlignment="Center"
+                                             Opacity="0.7"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                            <materialDesign:Card Grid.Column="1" Style="{StaticResource MetricCard}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Weight"
+                                                           Width="32" Height="32"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                                    <TextBlock Text="{Binding DailySummaryReport.TotalInitialWeight, StringFormat='{}{0:F0}'}"
+                                             FontSize="24"
+                                             FontWeight="Bold"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,8,0,0"/>
+                                    <TextBlock Text="إجمالي التحميل (كجم)"
+                                             FontSize="12"
+                                             HorizontalAlignment="Center"
+                                             Opacity="0.7"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                            <materialDesign:Card Grid.Column="2" Style="{StaticResource MetricCard}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="CurrencyUsd"
+                                                           Width="32" Height="32"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
+                                    <TextBlock Text="{Binding DailySummaryReport.TotalSalesAmount, StringFormat='{}{0:F0}'}"
+                                             FontSize="24"
+                                             FontWeight="Bold"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,8,0,0"/>
+                                    <TextBlock Text="إجمالي المبيعات (ريال)"
+                                             FontSize="12"
+                                             HorizontalAlignment="Center"
+                                             Opacity="0.7"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                            <materialDesign:Card Grid.Column="3" Style="{StaticResource MetricCard}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="TrendingDown"
+                                                           Width="32" Height="32"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource ValidationErrorBrush}"/>
+                                    <TextBlock Text="{Binding DailySummaryReport.AverageLossPercentage, StringFormat='{}{0:F1}%'}"
+                                             FontSize="24"
+                                             FontWeight="Bold"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,8,0,0"/>
+                                    <TextBlock Text="متوسط الفقد"
+                                             FontSize="12"
+                                             HorizontalAlignment="Center"
+                                             Opacity="0.7"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+                        </Grid>
+
+                        <!-- Truck Details -->
+                        <TextBlock Text="تفاصيل الشاحنات"
+                                 FontSize="16"
+                                 FontWeight="Medium"
+                                 Margin="0,24,0,16"/>
+
+                        <DataGrid ItemsSource="{Binding WeightReports}"
+                                Style="{StaticResource MaterialDesignDataGrid}"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                IsReadOnly="True"
+                                GridLinesVisibility="Horizontal"
+                                HeadersVisibility="Column"
+                                MaxHeight="300">
+
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="رقم الشاحنة"
+                                                  Binding="{Binding TruckNumber}"
+                                                  Width="100"/>
+
+                                <DataGridTextColumn Header="السائق"
+                                                  Binding="{Binding DriverName}"
+                                                  Width="120"/>
+
+                                <DataGridTextColumn Header="الوزن المحمل"
+                                                  Binding="{Binding InitialLoadWeight, StringFormat='{}{0:F2} كجم'}"
+                                                  Width="120"/>
+
+                                <DataGridTextColumn Header="الوزن المباع"
+                                                  Binding="{Binding TotalSalesWeight, StringFormat='{}{0:F2} كجم'}"
+                                                  Width="120"/>
+
+                                <DataGridTextColumn Header="الفقد"
+                                                  Binding="{Binding WeightDifference, StringFormat='{}{0:F2} كجم'}"
+                                                  Width="100"/>
+
+                                <DataGridTextColumn Header="نسبة الفقد"
+                                                  Binding="{Binding LossPercentage, StringFormat='{}{0:F1}%'}"
+                                                  Width="100"/>
+
+                                <DataGridTextColumn Header="المبيعات"
+                                                  Binding="{Binding TotalSalesAmount, StringFormat='{}{0:F2} ريال'}"
+                                                  Width="120"/>
+
+                                <DataGridTextColumn Header="عدد الفواتير"
+                                                  Binding="{Binding TotalInvoicesCount}"
+                                                  Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Sales Report -->
+                <materialDesign:Card Style="{StaticResource ReportCard}"
+                                   Visibility="{Binding SalesReport, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="تقرير المبيعات"
+                                 FontSize="20"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Sales Summary -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="ملخص المبيعات"
+                                         FontSize="16"
+                                         FontWeight="Medium"
+                                         Margin="0,0,0,8"/>
+
+                                <materialDesign:Card Background="{DynamicResource MaterialDesignCardBackground}"
+                                                   Padding="16"
+                                                   Margin="0,8">
+                                    <StackPanel>
+                                        <Grid Margin="0,4">
+                                            <TextBlock Text="إجمالي المبيعات:" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding SalesReport.TotalSalesAmount, StringFormat='{}{0:F2} ريال'}" 
+                                                     HorizontalAlignment="Left"
+                                                     FontWeight="Medium"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,4">
+                                            <TextBlock Text="إجمالي الوزن:" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding SalesReport.TotalNetWeight, StringFormat='{}{0:F2} كجم'}" 
+                                                     HorizontalAlignment="Left"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,4">
+                                            <TextBlock Text="عدد الفواتير:" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding SalesReport.TotalInvoicesCount}" 
+                                                     HorizontalAlignment="Left"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,4">
+                                            <TextBlock Text="متوسط السعر:" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding SalesReport.AverageUnitPrice, StringFormat='{}{0:F2} ريال/كجم'}" 
+                                                     HorizontalAlignment="Left"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </StackPanel>
+
+                            <!-- Top Invoices -->
+                            <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                                <TextBlock Text="أكبر الفواتير"
+                                         FontSize="16"
+                                         FontWeight="Medium"
+                                         Margin="0,0,0,8"/>
+
+                                <ItemsControl ItemsSource="{Binding SalesReport.TopInvoices}"
+                                            MaxHeight="200">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card Background="{DynamicResource MaterialDesignCardBackground}"
+                                                               Padding="12"
+                                                               Margin="0,4">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{Binding InvoiceNumber}"
+                                                                 FontSize="12"
+                                                                 FontWeight="Medium"/>
+                                                        <TextBlock Text="{Binding CustomerName}"
+                                                                 FontSize="11"
+                                                                 Opacity="0.7"/>
+                                                    </StackPanel>
+
+                                                    <TextBlock Grid.Column="1"
+                                                             Text="{Binding FinalAmount, StringFormat='{}{0:F0} ريال'}"
+                                                             FontSize="12"
+                                                             FontWeight="Medium"
+                                                             VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </materialDesign:Card>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Debtors Report -->
+                <materialDesign:Card Style="{StaticResource ReportCard}"
+                                   Visibility="{Binding DebtorsReport, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="تقرير الديون"
+                                 FontSize="20"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <!-- Debt Summary -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <materialDesign:Card Grid.Column="0" Style="{StaticResource MetricCard}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Account"
+                                                           Width="28" Height="28"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <TextBlock Text="{Binding DebtorsReport.TotalDebtorsCount}"
+                                             FontSize="20"
+                                             FontWeight="Bold"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,6,0,0"/>
+                                    <TextBlock Text="عدد المدينين"
+                                             FontSize="11"
+                                             HorizontalAlignment="Center"
+                                             Opacity="0.7"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                            <materialDesign:Card Grid.Column="1" Style="{StaticResource MetricCard}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="CurrencyUsd"
+                                                           Width="28" Height="28"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource ValidationErrorBrush}"/>
+                                    <TextBlock Text="{Binding DebtorsReport.TotalOutstandingDebt, StringFormat='{}{0:F0}'}"
+                                             FontSize="20"
+                                             FontWeight="Bold"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,6,0,0"/>
+                                    <TextBlock Text="إجمالي الديون (ريال)"
+                                             FontSize="11"
+                                             HorizontalAlignment="Center"
+                                             Opacity="0.7"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                            <materialDesign:Card Grid.Column="2" Style="{StaticResource MetricCard}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Calculator"
+                                                           Width="28" Height="28"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                                    <TextBlock Text="{Binding DebtorsReport.AverageDebtPerCustomer, StringFormat='{}{0:F0}'}"
+                                             FontSize="20"
+                                             FontWeight="Bold"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,6,0,0"/>
+                                    <TextBlock Text="متوسط الدين (ريال)"
+                                             FontSize="11"
+                                             HorizontalAlignment="Center"
+                                             Opacity="0.7"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+                        </Grid>
+
+                        <!-- Top Debtors -->
+                        <TextBlock Text="أكبر المدينين"
+                                 FontSize="16"
+                                 FontWeight="Medium"
+                                 Margin="0,24,0,16"/>
+
+                        <DataGrid ItemsSource="{Binding DebtorsReport.TopDebtors}"
+                                Style="{StaticResource MaterialDesignDataGrid}"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                IsReadOnly="True"
+                                GridLinesVisibility="Horizontal"
+                                HeadersVisibility="Column"
+                                MaxHeight="200">
+
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="اسم الزبون"
+                                                  Binding="{Binding CustomerName}"
+                                                  Width="150"/>
+
+                                <DataGridTextColumn Header="الدين الحالي"
+                                                  Binding="{Binding CurrentBalance, StringFormat='{}{0:F2} ريال'}"
+                                                  Width="120"/>
+
+                                <DataGridTextColumn Header="حد الائتمان"
+                                                  Binding="{Binding CreditLimit, StringFormat='{}{0:F2} ريال'}"
+                                                  Width="120"/>
+
+                                <DataGridTextColumn Header="عدد الفواتير"
+                                                  Binding="{Binding TotalInvoicesCount}"
+                                                  Width="100"/>
+
+                                <DataGridTextColumn Header="آخر معاملة"
+                                                  Binding="{Binding LastTransactionDate, StringFormat='{}{0:yyyy/MM/dd}'}"
+                                                  Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

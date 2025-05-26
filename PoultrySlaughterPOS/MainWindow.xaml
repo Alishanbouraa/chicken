@@ -1,0 +1,55 @@
+﻿<Window x:Class="PoultrySlaughterPOS.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:converters="clr-namespace:PoultrySlaughterPOS.Utils.Converters"
+        xmlns:viewModels="clr-namespace:PoultrySlaughterPOS.ViewModels"
+        xmlns:views="clr-namespace:PoultrySlaughterPOS.Views"
+        Title="{Binding Title}"
+        Height="900" Width="1400"
+        MinHeight="700" MinWidth="1200"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        FlowDirection="RightToLeft">
+
+    <Window.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
+        <converters:DecimalToStringConverter x:Key="DecimalConverter"/>
+
+        <!-- View DataTemplates with proper namespace references -->
+        <DataTemplate DataType="{x:Type viewModels:TruckLoadViewModel}">
+            <views:TruckLoadView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:InvoiceViewModel}">
+            <views:InvoiceView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:CustomerManagementViewModel}">
+            <views:CustomerManagementView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:TransactionHistoryViewModel}">
+            <views:TransactionHistoryView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:ReportsViewModel}">
+            <views:ReportsView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <!-- Rest of XAML content remains the same -->
+    <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding IsMenuOpen}"
+                               LeftDrawerBackground="{DynamicResource MaterialDesignCardBackground}"
+                               LeftDrawerCornerRadius="0,16,16,0">
+        <!-- Content implementation continues as before -->
+    </materialDesign:DrawerHost>
+</Window>

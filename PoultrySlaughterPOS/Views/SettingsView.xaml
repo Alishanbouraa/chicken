@@ -1,0 +1,432 @@
+﻿<UserControl x:Class="PoultrySlaughterPOS.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:PoultrySlaughterPOS.Utils.Converters"
+             FlowDirection="RightToLeft"
+             Background="{DynamicResource MaterialDesignBackground}">
+
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:DecimalToStringConverter x:Key="DecimalConverter"/>
+
+        <!-- Settings Card Style -->
+        <Style x:Key="SettingsCard" TargetType="materialDesign:Card">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp2"/>
+        </Style>
+
+        <!-- Setting Item Style -->
+        <Style x:Key="SettingItem" TargetType="Grid">
+            <Setter Property="Margin" Value="0,16"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <materialDesign:Card Grid.Row="0" Style="{StaticResource SettingsCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="إعدادات النظام والتكوين"
+                             FontSize="24"
+                             FontWeight="Medium"
+                             Margin="0,0,0,8"/>
+                    <TextBlock Text="تخصيص وإدارة إعدادات التطبيق والنظام"
+                             FontSize="14"
+                             Opacity="0.7"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding SaveSettingsCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Content="حفظ الإعدادات"
+                            Background="{DynamicResource PrimaryHueMidBrush}"
+                            Margin="8,0">
+                        <Button.CommandParameter>
+                            <materialDesign:PackIcon Kind="ContentSave"/>
+                        </Button.CommandParameter>
+                    </Button>
+
+                    <Button Command="{Binding ResetToDefaultsCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="استعادة الافتراضي"
+                            Margin="8,0">
+                        <Button.CommandParameter>
+                            <materialDesign:PackIcon Kind="Restore"/>
+                        </Button.CommandParameter>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- Settings Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Company Information -->
+                <materialDesign:Card Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="معلومات الشركة"
+                                 FontSize="18"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="اسم الشركة:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBox Grid.Column="1"
+                                   Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource MaterialDesignFilledTextBox}"
+                                   materialDesign:HintAssist.Hint="أدخل اسم الشركة"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="عنوان الشركة:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBox Grid.Column="1"
+                                   Text="{Binding CompanyAddress, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource MaterialDesignFilledTextBox}"
+                                   materialDesign:HintAssist.Hint="أدخل عنوان الشركة"
+                                   AcceptsReturn="True"
+                                   TextWrapping="Wrap"
+                                   MinLines="2"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="هاتف الشركة:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBox Grid.Column="1"
+                                   Text="{Binding CompanyPhone, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource MaterialDesignFilledTextBox}"
+                                   materialDesign:HintAssist.Hint="أدخل رقم هاتف الشركة"/>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- System Defaults -->
+                <materialDesign:Card Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="الإعدادات الافتراضية للنظام"
+                                 FontSize="18"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="سعر الكيلو الافتراضي:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBox Grid.Column="1"
+                                   Text="{Binding DefaultUnitPrice, Converter={StaticResource DecimalConverter}, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource MaterialDesignFilledTextBox}"
+                                   materialDesign:HintAssist.Hint="ريال"/>
+
+                            <TextBlock Grid.Column="2"
+                                     Text="ريال سعودي للكيلوجرام الواحد"
+                                     VerticalAlignment="Center"
+                                     Margin="16,0,0,0"
+                                     Opacity="0.7"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="طول رقم الفاتورة:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBox Grid.Column="1"
+                                   Text="{Binding InvoiceNumberLength, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource MaterialDesignFilledTextBox}"
+                                   materialDesign:HintAssist.Hint="عدد الأرقام"/>
+
+                            <TextBlock Grid.Column="2"
+                                     Text="عدد الأرقام في رقم الفاتورة (يشمل التاريخ)"
+                                     VerticalAlignment="Center"
+                                     Margin="16,0,0,0"
+                                     Opacity="0.7"/>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Appearance Settings -->
+                <materialDesign:Card Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="إعدادات المظهر"
+                                 FontSize="18"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="المظهر الداكن:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <ToggleButton Grid.Column="1"
+                                        IsChecked="{Binding IsDarkTheme}"
+                                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,16,0"/>
+
+                            <TextBlock Grid.Column="2"
+                                     Text="تفعيل المظهر الداكن للواجهة"
+                                     VerticalAlignment="Center"
+                                     Opacity="0.7"/>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Backup Settings -->
+                <materialDesign:Card Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="إعدادات النسخ الاحتياطي"
+                                 FontSize="18"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="النسخ التلقائي:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <ToggleButton Grid.Column="1"
+                                        IsChecked="{Binding AutoBackupEnabled}"
+                                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,16,0"/>
+
+                            <TextBlock Grid.Column="2"
+                                     Text="تفعيل إنشاء نسخ احتياطية تلقائية"
+                                     VerticalAlignment="Center"
+                                     Opacity="0.7"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource SettingItem}"
+                              Visibility="{Binding AutoBackupEnabled, Converter={StaticResource BoolToVisConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="فترة النسخ (أيام):"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBox Grid.Column="1"
+                                   Text="{Binding AutoBackupIntervalDays, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource MaterialDesignFilledTextBox}"
+                                   materialDesign:HintAssist.Hint="عدد الأيام"/>
+
+                            <TextBlock Grid.Column="2"
+                                     Text="عدد الأيام بين كل نسخة احتياطية"
+                                     VerticalAlignment="Center"
+                                     Margin="16,0,0,0"
+                                     Opacity="0.7"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="مجلد النسخ:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBox Grid.Column="1"
+                                   Text="{Binding BackupLocation, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource MaterialDesignFilledTextBox}"
+                                   IsReadOnly="True"
+                                   materialDesign:HintAssist.Hint="مسار مجلد النسخ الاحتياطية"/>
+
+                            <Button Grid.Column="2"
+                                  Content="تصفح..."
+                                  Style="{StaticResource MaterialDesignOutlinedButton}"
+                                  Margin="8,0,0,0"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="آخر نسخة احتياطية:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <TextBlock Grid.Column="1"
+                                     Text="{Binding LastBackupDate, StringFormat='{}{0:yyyy/MM/dd HH:mm}'}"
+                                     VerticalAlignment="Center"
+                                     Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                        </Grid>
+
+                        <!-- Backup Actions -->
+                        <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,24,0,8">
+
+                            <Button Command="{Binding CreateBackupCommand}"
+                                  Content="إنشاء نسخة احتياطية"
+                                  Style="{StaticResource MaterialDesignRaisedButton}"
+                                  Background="{DynamicResource SecondaryHueMidBrush}"
+                                  Margin="8,0">
+                                <Button.CommandParameter>
+                                    <materialDesign:PackIcon Kind="DatabaseExport"/>
+                                </Button.CommandParameter>
+                            </Button>
+
+                            <Button Command="{Binding RestoreBackupCommand}"
+                                  Content="استعادة النسخة"
+                                  Style="{StaticResource MaterialDesignOutlinedButton}"
+                                  Margin="8,0">
+                                <Button.CommandParameter>
+                                    <materialDesign:PackIcon Kind="DatabaseImport"/>
+                                </Button.CommandParameter>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- System Information -->
+                <materialDesign:Card Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="معلومات النظام"
+                                 FontSize="18"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <Grid Style="{StaticResource SettingItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                     Text="اتصال قاعدة البيانات:"
+                                     VerticalAlignment="Center"
+                                     FontWeight="Medium"/>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" 
+                                       Fill="{DynamicResource PrimaryHueMidBrush}"
+                                       Margin="0,0,8,0"/>
+                                <TextBlock Text="متصل وجاهز"
+                                         VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="2"
+                                  Command="{Binding TestDatabaseConnectionCommand}"
+                                  Content="اختبار الاتصال"
+                                  Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                        </Grid>
+
+                        <Separator Margin="0,16"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="إصدار التطبيق"
+                                         FontSize="12"
+                                         Opacity="0.7"/>
+                                <TextBlock Text="1.0.0"
+                                         FontSize="14"
+                                         FontWeight="Medium"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="تاريخ البناء"
+                                         FontSize="12"
+                                         Opacity="0.7"/>
+                                <TextBlock Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='{}{0:yyyy/MM/dd}'}"
+                                         FontSize="14"
+                                         FontWeight="Medium"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="نوع قاعدة البيانات"
+                                         FontSize="12"
+                                         Opacity="0.7"/>
+                                <TextBlock Text="SQL Server LocalDB"
+                                         FontSize="14"
+                                         FontWeight="Medium"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

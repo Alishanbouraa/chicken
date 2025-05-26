@@ -1,0 +1,464 @@
+﻿<UserControl x:Class="PoultrySlaughterPOS.Views.InvoiceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:PoultrySlaughterPOS.Utils.Converters"
+             FlowDirection="RightToLeft"
+             Background="{DynamicResource MaterialDesignBackground}">
+
+    <UserControl.Resources>
+        <converters:DecimalToStringConverter x:Key="DecimalConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+
+        <!-- Input Field Style -->
+        <Style x:Key="NumericTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFilledTextBox}">
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="Padding" Value="12,16"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Height" Value="56"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Card Style -->
+        <Style x:Key="SectionCard" TargetType="materialDesign:Card">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <materialDesign:Card Grid.Row="0" Style="{StaticResource SectionCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="إدارة الفواتير والمبيعات"
+                             FontSize="24"
+                             FontWeight="Medium"
+                             Margin="0,0,0,8"/>
+                    <TextBlock Text="{Binding StatusMessage}"
+                             FontSize="14"
+                             Opacity="0.7"
+                             Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding RefreshDataCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Content="تحديث البيانات"
+                            Margin="8,0">
+                        <Button.CommandParameter>
+                            <materialDesign:PackIcon Kind="Refresh"/>
+                        </Button.CommandParameter>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Invoice Form Section -->
+            <materialDesign:Card Grid.Column="0" Style="{StaticResource SectionCard}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="إنشاء فاتورة جديدة"
+                                 FontSize="18"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <!-- Invoice Number -->
+                        <TextBox Style="{StaticResource NumericTextBox}"
+                               materialDesign:HintAssist.Hint="رقم الفاتورة"
+                               Text="{Binding InvoiceNumber}"
+                               IsReadOnly="True"
+                               Background="{DynamicResource MaterialDesignDivider}"/>
+
+                        <!-- Customer Selection -->
+                        <ComboBox Style="{StaticResource MaterialDesignFilledComboBox}"
+                                materialDesign:HintAssist.Hint="اختر الزبون"
+                                ItemsSource="{Binding Customers}"
+                                SelectedItem="{Binding SelectedCustomer}"
+                                DisplayMemberPath="CustomerName"
+                                Margin="0,8,0,4"
+                                Height="56"/>
+
+                        <!-- Truck Selection -->
+                        <ComboBox Style="{StaticResource MaterialDesignFilledComboBox}"
+                                materialDesign:HintAssist.Hint="اختر الشاحنة"
+                                ItemsSource="{Binding Trucks}"
+                                SelectedItem="{Binding SelectedTruck}"
+                                DisplayMemberPath="TruckNumber"
+                                Margin="0,4"
+                                Height="56"/>
+
+                        <!-- Invoice Date -->
+                        <DatePicker Style="{StaticResource MaterialDesignFilledDatePicker}"
+                                  materialDesign:HintAssist.Hint="تاريخ الفاتورة"
+                                  SelectedDate="{Binding InvoiceDate}"
+                                  Margin="0,4"
+                                  Height="56"/>
+
+                        <Separator Margin="0,16"/>
+
+                        <!-- Weight Inputs -->
+                        <TextBlock Text="بيانات الأوزان"
+                                 FontSize="16"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,8"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                   Style="{StaticResource NumericTextBox}"
+                                   materialDesign:HintAssist.Hint="الوزن الفلتي (كجم)"
+                                   Text="{Binding GrossWeight, Converter={StaticResource DecimalConverter}}"
+                                   Margin="0,4,4,4"/>
+
+                            <TextBox Grid.Column="1"
+                                   Style="{StaticResource NumericTextBox}"
+                                   materialDesign:HintAssist.Hint="وزن الأقفاص (كجم)"
+                                   Text="{Binding CagesWeight, Converter={StaticResource DecimalConverter}}"
+                                   Margin="4,4,0,4"/>
+                        </Grid>
+
+                        <TextBox Style="{StaticResource NumericTextBox}"
+                               materialDesign:HintAssist.Hint="عدد الأقفاص"
+                               Text="{Binding CagesCount}"
+                               Margin="0,4"/>
+
+                        <!-- Calculated Net Weight -->
+                        <TextBox Style="{StaticResource NumericTextBox}"
+                               materialDesign:HintAssist.Hint="الوزن الصافي (كجم)"
+                               Text="{Binding NetWeight, Converter={StaticResource DecimalConverter}}"
+                               IsReadOnly="True"
+                               Background="{DynamicResource MaterialDesignDivider}"
+                               Margin="0,4"/>
+
+                        <Separator Margin="0,16"/>
+
+                        <!-- Pricing -->
+                        <TextBlock Text="التسعير والحسابات"
+                                 FontSize="16"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,8"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                   Style="{StaticResource NumericTextBox}"
+                                   materialDesign:HintAssist.Hint="سعر الكيلو"
+                                   Text="{Binding UnitPrice, Converter={StaticResource DecimalConverter}}"
+                                   Margin="0,4,4,4"/>
+
+                            <TextBox Grid.Column="1"
+                                   Style="{StaticResource NumericTextBox}"
+                                   materialDesign:HintAssist.Hint="نسبة الخصم (%)"
+                                   Text="{Binding DiscountPercentage, Converter={StaticResource DecimalConverter}}"
+                                   Margin="4,4,0,4"/>
+                        </Grid>
+
+                        <!-- Calculation Results -->
+                        <materialDesign:Card Background="{DynamicResource MaterialDesignCardBackground}"
+                                           Padding="16"
+                                           Margin="0,8">
+                            <StackPanel>
+                                <Grid Margin="0,4">
+                                    <TextBlock Text="المجموع الجزئي:" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:F2} ريال'}" 
+                                             HorizontalAlignment="Left"
+                                             FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,4">
+                                    <TextBlock Text="مبلغ الخصم:" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding DiscountAmount, StringFormat='{}{0:F2} ريال'}" 
+                                             HorizontalAlignment="Left"
+                                             Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                                </Grid>
+
+                                <Separator Margin="0,8"/>
+
+                                <Grid Margin="0,4">
+                                    <TextBlock Text="المبلغ النهائي:" 
+                                             HorizontalAlignment="Right"
+                                             FontSize="16"
+                                             FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding FinalAmount, StringFormat='{}{0:F2} ريال'}" 
+                                             HorizontalAlignment="Left"
+                                             FontSize="16"
+                                             FontWeight="Bold"
+                                             Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                </Grid>
+
+                                <Grid Margin="0,4">
+                                    <TextBlock Text="الرصيد السابق:" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding PreviousBalance, StringFormat='{}{0:F2} ريال'}" 
+                                             HorizontalAlignment="Left"/>
+                                </Grid>
+
+                                <Grid Margin="0,4">
+                                    <TextBlock Text="الرصيد الحالي:" 
+                                             HorizontalAlignment="Right"
+                                             FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding CurrentBalance, StringFormat='{}{0:F2} ريال'}" 
+                                             HorizontalAlignment="Left"
+                                             FontWeight="Medium"/>
+                                </Grid>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <!-- Notes -->
+                        <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
+                               materialDesign:HintAssist.Hint="ملاحظات"
+                               Text="{Binding Notes}"
+                               AcceptsReturn="True"
+                               TextWrapping="Wrap"
+                               MinLines="3"
+                               MaxLines="5"
+                               Margin="0,8"/>
+
+                        <!-- Action Buttons -->
+                        <StackPanel Orientation="Horizontal" 
+                                  HorizontalAlignment="Center"
+                                  Margin="0,16,0,8">
+
+                            <Button Command="{Binding CreateInvoiceCommand}"
+                                  Content="حفظ الفاتورة"
+                                  Style="{StaticResource MaterialDesignRaisedButton}"
+                                  Background="{DynamicResource PrimaryHueMidBrush}"
+                                  Margin="4,0"
+                                  Padding="16,8"
+                                  Visibility="{Binding IsEditMode, Converter={StaticResource InverseBoolToVisConverter}}"/>
+
+                            <Button Command="{Binding UpdateInvoiceCommand}"
+                                  Content="تحديث الفاتورة"
+                                  Style="{StaticResource MaterialDesignRaisedButton}"
+                                  Background="{DynamicResource PrimaryHueMidBrush}"
+                                  Margin="4,0"
+                                  Padding="16,8"
+                                  Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisConverter}}"/>
+
+                            <Button Command="{Binding CancelEditCommand}"
+                                  Content="إلغاء"
+                                  Style="{StaticResource MaterialDesignOutlinedButton}"
+                                  Margin="4,0"
+                                  Padding="16,8"
+                                  Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisConverter}}"/>
+
+                            <Button Command="{Binding PrintInvoiceCommand}"
+                                  Content="طباعة"
+                                  Style="{StaticResource MaterialDesignOutlinedButton}"
+                                  Margin="4,0"
+                                  Padding="16,8">
+                                <Button.CommandParameter>
+                                    <materialDesign:PackIcon Kind="Printer"/>
+                                </Button.CommandParameter>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- Error Display -->
+                        <ItemsControl ItemsSource="{Binding ErrorMessages}"
+                                    Visibility="{Binding HasErrors, Converter={StaticResource BoolToVisConverter}}"
+                                    Margin="0,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <materialDesign:Card Background="{DynamicResource ValidationErrorBrush}"
+                                                       Padding="12,8"
+                                                       Margin="0,2">
+                                        <TextBlock Text="{Binding}"
+                                                 Foreground="White"
+                                                 FontSize="12"/>
+                                    </materialDesign:Card>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </materialDesign:Card>
+
+            <!-- Invoice List and Summary Section -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Daily Summary -->
+                <materialDesign:Card Grid.Row="0" Style="{StaticResource SectionCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Receipt"
+                                                   Width="32" Height="32"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                            <TextBlock Text="{Binding TodaysInvoiceCount}"
+                                     FontSize="24"
+                                     FontWeight="Bold"
+                                     HorizontalAlignment="Center"
+                                     Margin="0,8,0,0"/>
+                            <TextBlock Text="فواتير اليوم"
+                                     FontSize="14"
+                                     HorizontalAlignment="Center"
+                                     Opacity="0.7"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="CurrencyUsd"
+                                                   Width="32" Height="32"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                            <TextBlock Text="{Binding TodaysTotalSales, StringFormat='{}{0:F0}'}"
+                                     FontSize="24"
+                                     FontWeight="Bold"
+                                     HorizontalAlignment="Center"
+                                     Margin="0,8,0,0"/>
+                            <TextBlock Text="إجمالي المبيعات (ريال)"
+                                     FontSize="14"
+                                     HorizontalAlignment="Center"
+                                     Opacity="0.7"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Calculator"
+                                                   Width="32" Height="32"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
+                            <TextBlock Text="{Binding AverageInvoiceValue, StringFormat='{}{0:F0}'}"
+                                     FontSize="24"
+                                     FontWeight="Bold"
+                                     HorizontalAlignment="Center"
+                                     Margin="0,8,0,0"/>
+                            <TextBlock Text="متوسط الفاتورة (ريال)"
+                                     FontSize="14"
+                                     HorizontalAlignment="Center"
+                                     Opacity="0.7"/>
+                        </StackPanel>
+                    </Grid>
+                </materialDesign:Card>
+
+                <!-- Today's Invoices List -->
+                <materialDesign:Card Grid.Row="1" Style="{StaticResource SectionCard}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                 Text="فواتير اليوم"
+                                 FontSize="18"
+                                 FontWeight="Medium"
+                                 Margin="0,0,0,16"/>
+
+                        <DataGrid Grid.Row="1"
+                                ItemsSource="{Binding TodaysInvoices}"
+                                SelectedItem="{Binding SelectedInvoice}"
+                                Style="{StaticResource MaterialDesignDataGrid}"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                IsReadOnly="True"
+                                GridLinesVisibility="Horizontal"
+                                HeadersVisibility="Column">
+
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="رقم الفاتورة"
+                                                  Binding="{Binding InvoiceNumber}"
+                                                  Width="120"/>
+
+                                <DataGridTextColumn Header="اسم الزبون"
+                                                  Binding="{Binding Customer.CustomerName}"
+                                                  Width="150"/>
+
+                                <DataGridTextColumn Header="الشاحنة"
+                                                  Binding="{Binding Truck.TruckNumber}"
+                                                  Width="80"/>
+
+                                <DataGridTextColumn Header="الوزن الصافي"
+                                                  Binding="{Binding NetWeight, StringFormat='{}{0:F2} كجم'}"
+                                                  Width="100"/>
+
+                                <DataGridTextColumn Header="المبلغ النهائي"
+                                                  Binding="{Binding FinalAmount, StringFormat='{}{0:F2} ريال'}"
+                                                  Width="120"/>
+
+                                <DataGridTemplateColumn Header="الحالة" Width="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Chip Content="{Binding IsPaid, Converter={StaticResource PaymentStatusConverter}}"
+                                                               Background="{Binding IsPaid, Converter={StaticResource PaymentStatusColorConverter}}"
+                                                               Foreground="White"
+                                                               FontSize="10"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTemplateColumn Header="الإجراءات" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Command="{Binding DataContext.EditInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"
+                                                      Style="{StaticResource MaterialDesignIconButton}"
+                                                      ToolTip="تعديل"
+                                                      Width="32" Height="32">
+                                                    <materialDesign:PackIcon Kind="Edit" Width="16" Height="16"/>
+                                                </Button>
+
+                                                <Button Command="{Binding DataContext.PrintInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"
+                                                      Style="{StaticResource MaterialDesignIconButton}"
+                                                      ToolTip="طباعة"
+                                                      Width="32" Height="32">
+                                                    <materialDesign:PackIcon Kind="Printer" Width="16" Height="16"/>
+                                                </Button>
+
+                                                <Button Command="{Binding DataContext.DeleteInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"
+                                                      Style="{StaticResource MaterialDesignIconButton}"
+                                                      ToolTip="حذف"
+                                                      Width="32" Height="32"
+                                                      Visibility="{Binding IsPaid, Converter={StaticResource InverseBoolToVisConverter}}">
+                                                    <materialDesign:PackIcon Kind="Delete" Width="16" Height="16"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </materialDesign:Card>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>
