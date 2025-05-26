@@ -73,37 +73,37 @@ namespace PoultrySlaughterPOS.ViewModels
         #region Relay Commands
 
         [RelayCommand]
-        private async Task NavigateToTruckLoadManagementAsync()
+        private async Task NavigateToTruckLoadManagement()
         {
             await NavigateToViewModelAsync<TruckLoadViewModel>("إدارة تحميل الشاحنات");
         }
 
         [RelayCommand]
-        private async Task NavigateToInvoiceManagementAsync()
+        private async Task NavigateToInvoiceManagement()
         {
             await NavigateToViewModelAsync<InvoiceViewModel>("إدارة الفواتير والمبيعات");
         }
 
         [RelayCommand]
-        private async Task NavigateToCustomerManagementAsync()
+        private async Task NavigateToCustomerManagement()
         {
             await NavigateToViewModelAsync<CustomerManagementViewModel>("إدارة الزبائن والحسابات");
         }
 
         [RelayCommand]
-        private async Task NavigateToTransactionHistoryAsync()
+        private async Task NavigateToTransactionHistory()
         {
             await NavigateToViewModelAsync<TransactionHistoryViewModel>("تاريخ المعاملات");
         }
 
         [RelayCommand]
-        private async Task NavigateToReportsAsync()
+        private async Task NavigateToReports()
         {
             await NavigateToViewModelAsync<ReportsViewModel>("التقارير والإحصائيات");
         }
 
         [RelayCommand]
-        private async Task NavigateToSettingsAsync()
+        private async Task NavigateToSettings()
         {
             await NavigateToViewModelAsync<SettingsViewModel>("إعدادات النظام");
         }
@@ -123,7 +123,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         [RelayCommand]
-        private async Task RefreshApplicationStateAsync()
+        private async Task RefreshApplicationState()
         {
             await ExecuteAsyncOperation(async () =>
             {
@@ -134,7 +134,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         [RelayCommand]
-        private async Task ShowAboutDialogAsync()
+        private async Task ShowAboutDialog()
         {
             var aboutMessage = $"نظام إدارة مسلخ الدجاج\n" +
                              $"الإصدار: {ApplicationVersion}\n" +
@@ -146,7 +146,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         [RelayCommand]
-        private async Task BackupDatabaseAsync()
+        private async Task BackupDatabase()
         {
             await ExecuteAsyncOperation(async () =>
             {
@@ -158,7 +158,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         [RelayCommand]
-        private async Task ExitApplicationAsync()
+        private async Task ExitApplication()
         {
             var confirmed = await _navigationService.ShowConfirmationDialogAsync(
                 "إغلاق التطبيق",
@@ -186,7 +186,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 SubscribeToNavigationEvents();
 
                 // Navigate to default view
-                _ = Task.Run(async () => await NavigateToTruckLoadManagementAsync());
+                _ = Task.Run(async () => await NavigateToTruckLoadManagement());
 
                 _logger.LogInformation("Main application interface initialized successfully");
             }
@@ -362,15 +362,15 @@ namespace PoultrySlaughterPOS.ViewModels
         /// Implements sophisticated theme management with proper error handling
         /// </summary>
         /// <param name="isDarkTheme">Theme preference flag</param>
-        private static void ApplyTheme(bool isDarkTheme)
+        private void ApplyTheme(bool isDarkTheme)
         {
             try
             {
                 var paletteHelper = new PaletteHelper();
                 var theme = paletteHelper.GetTheme();
 
-                // Configure base theme with proper API usage
-                theme.SetBaseTheme(isDarkTheme ? Theme.Dark : Theme.Light);
+                // Configure base theme with proper API usage for MaterialDesignThemes.Wpf 5.0+
+                theme.SetBaseTheme(isDarkTheme ? BaseTheme.Dark : BaseTheme.Light);
 
                 // Apply consistent color scheme across application
                 theme.SetPrimaryColor(Colors.Blue);
@@ -387,6 +387,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogError(ex, "Failed to apply Material Design theme configuration");
             }
         }
+
         private void StartDateTimeTimer()
         {
             var timer = new System.Windows.Threading.DispatcherTimer

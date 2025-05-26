@@ -106,7 +106,6 @@ namespace PoultrySlaughterPOS.ViewModels
 
         #endregion
 
-        // Rest of implementation remains the same...
         protected async Task<bool> ExecuteAsyncOperation(Func<Task> operation, bool showLoading = true, string operationName = "Operation")
         {
             try
