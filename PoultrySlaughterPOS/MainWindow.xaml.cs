@@ -3,7 +3,7 @@ using PoultrySlaughterPOS.ViewModels;
 using System.Windows;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
-
+using PoultrySlaughterPOS.Utils.Configuration;
 namespace PoultrySlaughterPOS.Views
 {
     /// <summary>
@@ -60,7 +60,7 @@ namespace PoultrySlaughterPOS.Views
             try
             {
                 // Load user theme preference from application settings
-                var isDarkTheme = Properties.Settings.Default.IsDarkTheme;
+                var isDarkTheme = ApplicationSettings.Instance.IsDarkTheme;
                 ApplyMaterialDesignTheme(isDarkTheme);
             }
             catch (Exception)
@@ -82,8 +82,8 @@ namespace PoultrySlaughterPOS.Views
                 var paletteHelper = new PaletteHelper();
                 var theme = paletteHelper.GetTheme();
 
-                // Configure base theme according to user preference
-                theme.SetBaseTheme(isDarkTheme ? Theme.Dark : Theme.Light);
+                // Configure base theme according to user preference - CORRECTED API
+                theme.SetBaseTheme(isDarkTheme ? BaseTheme.Dark : BaseTheme.Light);
 
                 // Apply enterprise-appropriate color scheme
                 theme.SetPrimaryColor(Colors.Blue);
@@ -109,7 +109,7 @@ namespace PoultrySlaughterPOS.Views
             try
             {
                 // Persist application settings for next session
-                Properties.Settings.Default.Save();
+                ApplicationSettings.Instance.Save();
 
                 // Execute ViewModel cleanup if available
                 if (DataContext is MainWindowViewModel mainViewModel)

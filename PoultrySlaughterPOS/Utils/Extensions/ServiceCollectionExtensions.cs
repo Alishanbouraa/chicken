@@ -6,6 +6,7 @@ using PoultrySlaughterPOS.ViewModels;
 using PoultrySlaughterPOS.Views;
 using PoultrySlaughterPOS.Utils.Converters;
 using PoultrySlaughterPOS.Utils.Validation;
+using PoultrySlaughterPOS.Utils.Configuration; // ADD THIS LINE
 using Serilog;
 
 namespace PoultrySlaughterPOS.Utils.Extensions

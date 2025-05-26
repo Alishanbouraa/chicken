@@ -4,6 +4,7 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Services.Interfaces;
+using PoultrySlaughterPOS.Utils.Configuration;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 
@@ -356,7 +357,6 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogWarning(ex, "Database connection check failed");
             }
         }
-
         /// <summary>
         /// Applies Material Design theme configuration with current API compatibility
         /// Implements sophisticated theme management with proper error handling
@@ -379,6 +379,10 @@ namespace PoultrySlaughterPOS.ViewModels
                 // Apply theme configuration to application
                 paletteHelper.SetTheme(theme);
 
+                // Save theme preference
+                ApplicationSettings.Instance.IsDarkTheme = isDarkTheme;
+                ApplicationSettings.Instance.Save();
+
                 _logger.LogDebug("Successfully applied {ThemeType} theme configuration",
                     isDarkTheme ? "Dark" : "Light");
             }
@@ -387,7 +391,6 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogError(ex, "Failed to apply Material Design theme configuration");
             }
         }
-
         private void StartDateTimeTimer()
         {
             var timer = new System.Windows.Threading.DispatcherTimer
